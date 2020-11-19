@@ -1,0 +1,9 @@
+cvx
+nvda
+nov
+wdc
+intc
+amd
+nflx
+qcom
+msft
