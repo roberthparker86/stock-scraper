@@ -10,7 +10,6 @@ text_path = os.path.join(script_path, 'tickerList.txt')
 centered = Alignment(horizontal="center", vertical="center")
 
 # URL's for sites to be scraped
-guru_foc= 'https://www.gurufocus.com/stock/'
 mark_watch = 'https://www.marketwatch.com/investing/stock/'
 
 title_font = Font(size = "14", bold = True, name = 'Calibri')
@@ -68,7 +67,7 @@ def get_m_watch(url):
     m_watch_out.append(div_ratio[0].text)
     m_watch_out.append(cash_ratio[0].text)
 
-def scrape(a,b):
+def scrape(a,b, ticker):
     # Creates and populates cells in the spreadsheet
     # arguments are for the y range
     get_m_watch(mark_watch + ticker)
@@ -146,6 +145,18 @@ def scrape(a,b):
                     cell.fill = fill_list[f_count]
     m_watch_out.clear()
 
+def iterate_tickers(a, b, c, d):
+    global count, f_count
+    for ticker in ticker_list[c:d]:
+        scrape(a,b, ticker) # Execute scraper function
+        count += 9
+        if f_count < 5:
+            f_count += 1
+        else:
+            f_count = 0
+        bar.next() 
+        time.sleep(1)
+    
 # Create Workbook to be saved to "stockOutput.xlsx"
 wb = Workbook()
 ws = wb.active # Select default sheet
@@ -154,27 +165,9 @@ ws.title = "stockOutput" # Rename sheet title
 get_tickers(text_path) # Populate ticker list 
 bar = IncrementalBar('Getting Stock Info', max = len(ticker_list)) # Scraping Stock Bar
 
-for ticker in ticker_list[:len(ticker_list) // 2]:
-    scrape(1,3) # Execute scraper function
-    count += 9
-    if f_count < 5:
-        f_count += 1
-    else:
-        f_count = 0
-    bar.next() 
-    time.sleep(1)
-    
+iterate_tickers(1, 3, 0, len(ticker_list) // 2)
 count = 1
-
-for ticker in ticker_list[len(ticker_list) // 2:]:
-    scrape(4,6) # Execute scraper function
-    count += 9
-    if f_count < 5:
-        f_count += 1
-    else:
-        f_count = 0
-    bar.next() 
-    time.sleep(1)
+iterate_tickers(4, 6, len(ticker_list) //2, len(ticker_list))
 
 bar.finish() # Show finished with progress bar
 
