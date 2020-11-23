@@ -27,7 +27,6 @@ purple = PatternFill("solid", fgColor="bf819e")
 
 # Values for data scraping stockOutput
 m_watch_out = []
-g_focus_out = []
 
 count = 1
 f_count = 0
@@ -46,35 +45,33 @@ def get_tickers(path):
 
 def get_m_watch(url):
     res = requests.get(url)
+    res_profile = requests.get(url + "/company-profile")
     res.raise_for_status()
     soup = BeautifulSoup(res.text, 'html.parser')
+    soup2 = BeautifulSoup(res_profile.text, 'html.parser')
     title = soup.select('body > div.container.container--body > div.region.region--intraday > div:nth-child(2) > div > div:nth-child(2) > h1')
     price = soup.select('body > div.container.container--body > div.region.region--intraday > div.column.column--aside > div > div.intraday__data > h3 > bg-quote')
     eps = soup.select('body > div.container.container--body > div.region.region--primary > div:nth-child(2) > div.group.group--elements.left > div > ul > li:nth-child(10) > span.primary')
     beta = soup.select('body > div.container.container--body > div.region.region--primary > div:nth-child(2) > div.group.group--elements.left > div > ul > li:nth-child(7) > span.primary')
     div = soup.select('body > div.container.container--body > div.region.region--primary > div:nth-child(2) > div.group.group--elements.left > div > ul > li:nth-child(12) > span.primary')
+    pb = soup2.select('body > div.container.container--body > div.region.region--primary > div.column.column--primary > div.group.left > div:nth-child(1) > table > tbody > tr:nth-child(5) > td.table__cell.w25')
+    div = soup.select('body > div.container.container--body > div.region.region--primary > div:nth-child(2) > div.group.group--elements.left > div > ul > li:nth-child(12) > span.primary')
+    div_ratio = soup.select('body > div.container.container--body > div.region.region--primary > div:nth-child(2) > div.group.group--elements.left > div > ul > li:nth-child(11) > span.primary')
+    cash_ratio = soup2.select('body > div.container.container--body > div.region.region--primary > div.column.column--primary > div.group.left > div:nth-child(3) > table > tbody > tr:nth-child(3) > td.table__cell.w25')
     m_watch_out.append(title[0].text)
     m_watch_out.append(price[0].text)
     m_watch_out.append(eps[0].text)
     m_watch_out.append(beta[0].text)
     m_watch_out.append(div[0].text)
-    
-def get_g_focus(url):
-    res = requests.get(url)
-    res.raise_for_status()
-    soup = BeautifulSoup(res.text, 'html.parser')
-    dte = soup.select('#financial-strength > div > table.stock-indicator-table > tbody > tr:nth-child(1) > td:nth-child(2)')
-    pb = soup.select('#ratios > div > table.stock-indicator-table > tbody > tr:nth-child(3) > td:nth-child(2)')
-    div_ratio = soup.select('#dividend > div > table.stock-indicator-table > tbody > tr:nth-child(1) > td:nth-child(2)')
-    g_focus_out.append(dte[0].text)
-    g_focus_out.append(pb[0].text)
-    g_focus_out.append(div_ratio[0].text)
+    m_watch_out.append(pb[0].text)
+    m_watch_out.append(div[0].text)
+    m_watch_out.append(div_ratio[0].text)
+    m_watch_out.append(cash_ratio[0].text)
 
 def scrape(a,b):
     # Creates and populates cells in the spreadsheet
     # arguments are for the y range
     get_m_watch(mark_watch + ticker)
-    get_g_focus(guru_foc + ticker)
     for x in range(count, count + 9):
         for y in range(a, b):
             if x == count: # Title cell
@@ -87,17 +84,7 @@ def scrape(a,b):
                     cell = ws.cell(row=x, column=y, value= "$" + m_watch_out[1])
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
-            if x == count + 2: # Debt to equity
-                if y == a:
-                    cell = ws.cell(row=x, column=y, value= 'Debt To Equity')
-                    cell.font = reg_font
-                    cell.fill = fill_list[f_count]
-                if y == a + 1:
-                    cell = ws.cell(row=x, column=y, value= g_focus_out[0])
-                    cell.alignment = centered
-                    cell.font = label_font
-                    cell.fill = fill_list[f_count]
-            if x == count + 3: # Earnins Per Share
+            if x == count + 2: # Earnins Per Share
                 if y == a:
                     cell = ws.cell(row=x, column=y, value= 'Earnings Per Share')
                     cell.font = reg_font
@@ -107,7 +94,7 @@ def scrape(a,b):
                     cell.alignment = centered
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
-            if x == count + 4: # Beta Ratio
+            if x == count + 3: # Beta Ratio
                 if y == a:
                     cell = ws.cell(row=x, column=y, value= 'Beta Ratio')
                     cell.font = reg_font
@@ -117,38 +104,47 @@ def scrape(a,b):
                     cell.alignment = centered
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
-            if x == count + 5: # Price to Book
+            if x == count + 4: # Price to Book
                 if y == a:
                     cell = ws.cell(row=x, column=y, value= 'Price to Book')
                     cell.font = reg_font
                     cell.fill = fill_list[f_count]
                 if y == a + 1:
-                    cell = ws.cell(row=x, column=y, value= g_focus_out[1])
+                    cell = ws.cell(row=x, column=y, value= m_watch_out[5])
                     cell.alignment = centered
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
-            if x == count + 6: # Dividend Payment
+            if x == count + 5: # Dividend Payment
                 if y == a:
                     cell = ws.cell(row=x, column=y, value= 'Dividend')
                     cell.font = reg_font
                     cell.fill = fill_list[f_count]
                 if y == a + 1:
-                    cell = ws.cell(row=x, column=y, value= m_watch_out[4])
+                    cell = ws.cell(row=x, column=y, value= m_watch_out[6])
                     cell.alignment = centered
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
-            if x == count + 7: # Dividend Yield %
+            if x == count + 6: # Dividend Yield %
                 if y == a:
                     cell = ws.cell(row=x, column=y, value= 'Dividend Yield %')
                     cell.font = reg_font
                     cell.fill = fill_list[f_count]
                 if y == a + 1:
-                    cell = ws.cell(row=x, column=y, value= g_focus_out[2])
+                    cell = ws.cell(row=x, column=y, value= m_watch_out[7])
+                    cell.alignment = centered
+                    cell.font = label_font
+                    cell.fill = fill_list[f_count]
+            if x == count + 7: # Cash Ratio
+                if y == a:
+                    cell = ws.cell(row=x, column=y, value= 'Cash Ratio')
+                    cell.font = reg_font
+                    cell.fill = fill_list[f_count]
+                if y == a + 1:
+                    cell = ws.cell(row=x, column=y, value= m_watch_out[8])
                     cell.alignment = centered
                     cell.font = label_font
                     cell.fill = fill_list[f_count]
     m_watch_out.clear()
-    g_focus_out.clear()
 
 # Create Workbook to be saved to "stockOutput.xlsx"
 wb = Workbook()
