@@ -1,4 +1,4 @@
-import os, requests, re, time
+import os, requests, re, time, json
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 from bs4 import BeautifulSoup
@@ -10,7 +10,8 @@ text_path = os.path.join(script_path, 'tickerList.txt')
 centered = Alignment(horizontal="center", vertical="center")
 
 # URL's for sites to be scraped
-mark_watch = 'https://www.marketwatch.com/investing/stock/'
+api_url = "https://www.alphavantage.co/query?function=OVERVIEW&symbol="
+key = "71YCXZJSXPOKUE38"
 
 title_font = Font(size = "14", bold = True, name = 'Calibri')
 label_font = Font(name= 'Calibri', bold = True)
