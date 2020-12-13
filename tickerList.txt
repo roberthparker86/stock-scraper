@@ -1,9 +1,4 @@
-cvx
-nvda
-nov
-wdc
-intc
+infy
+leds
+riot
 amd
-nflx
-qcom
-msft
