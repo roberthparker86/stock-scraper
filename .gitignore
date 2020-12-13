@@ -3,3 +3,5 @@ stockOutput.xlsx
 tickerList.txt
 .~lock.StockScraper-Notes.odt#
 key.txt
+Test.py
+stockScraper-TEST.ipynb

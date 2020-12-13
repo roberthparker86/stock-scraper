@@ -1,6 +1,4 @@
 infy
 leds
-acb
-mrvl
-fcel
-riots
+riot
+amd
